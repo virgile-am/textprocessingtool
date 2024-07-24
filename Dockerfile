@@ -1,28 +1,33 @@
-# Use the official Maven image to build the application
-FROM maven:3.8.4-openjdk-21 AS build
+ # Use the official OpenJDK 21 image as the base image
+ FROM openjdk:21-jdk-slim as build
 
-# Set the working directory
-WORKDIR /app
+ # Set the working directory in the container
+ WORKDIR /app
 
-# Copy the Maven wrapper and project files
-COPY .mvn .mvn
-COPY mvnw pom.xml ./
-COPY src ./src
+ # Install Maven
+ RUN apt-get update && apt-get install -y maven
 
-# Install dependencies and build the application
-RUN ./mvnw clean install
+ # Copy the pom.xml and src directory
+ COPY pom.xml .
+ COPY src ./src
 
-# Use the official OpenJDK image to run the application
-FROM openjdk:21-jdk-slim
+ # Build the application
+ RUN mvn clean package -DskipTests
 
-# Set the working directory
-WORKDIR /app
+ # Create a new stage for the runtime image
+ FROM openjdk:21-jdk-slim
 
-# Copy the built JAR file from the build stage
-COPY --from=build /app/target/*.jar app.jar
+ # Set the working directory in the container
+ WORKDIR /app
 
-# Expose the port the app runs on
-EXPOSE 8080
+ # Copy the built JAR file from the build stage
+ COPY --from=build /app/target/*.jar app.jar
 
-# Run the application
-ENTRYPOINT ["java", "-jar", "app.jar"]
+ # Expose the port the app runs on
+ EXPOSE 8080
+
+ # ONBUILD instruction for child images
+ ONBUILD COPY . /app
+
+ # Run the application
+ CMD ["java", "-jar", "app.jar"]
