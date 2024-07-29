@@ -1,4 +1,4 @@
- package com.example.textprocessingtool.controller;
+package com.example.textprocessingtool.controller;
 
 import com.example.textprocessingtool.service.TextProcessingService;
 import org.springframework.beans.factory.annotation.Autowired;
