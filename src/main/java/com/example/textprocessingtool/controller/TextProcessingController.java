@@ -1,12 +1,10 @@
-package com.example.textprocessingtool.controller;
+ package com.example.textprocessingtool.controller;
 
 import com.example.textprocessingtool.service.TextProcessingService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-@Controller
+@RestController
 @RequestMapping("/text")
 public class TextProcessingController {
 
@@ -14,35 +12,32 @@ public class TextProcessingController {
     private TextProcessingService textProcessingService;
 
     @GetMapping("/")
-    public String home() {
-        return "index"; // JSP file: src/main/webapp/WEB-INF/views/index.jsp
+    public String index() {
+        return "index.html";
     }
 
     @PostMapping("/processText")
-    public String processText(@RequestParam("text") String text, @RequestParam("regex") String regex, Model model) {
-        String result = textProcessingService.processTextWithRegex(text, regex);
-        model.addAttribute("result", result);
-        return "result"; // JSP file: src/main/webapp/WEB-INF/views/result.jsp
+    public String processText(@RequestParam String text, @RequestParam String regex) {
+        return textProcessingService.processTextWithRegex(text, regex);
     }
 
     @PostMapping("/searchPattern")
-    public String searchPattern(@RequestParam("searchText") String text, @RequestParam("pattern") String pattern, Model model) {
-        String result = textProcessingService.searchPatternInText(text, pattern);
-        model.addAttribute("result", result);
-        return "result"; // JSP file: src/main/webapp/WEB-INF/views/result.jsp
+    public String searchPattern(@RequestParam String text, @RequestParam String regex) {
+        return textProcessingService.searchPatternInText(text, regex);
     }
 
     @PostMapping("/replaceText")
-    public String replaceText(@RequestParam("replaceText") String text, @RequestParam("target") String target, @RequestParam("replacement") String replacement, Model model) {
-        String result = textProcessingService.replaceTextInString(text, target, replacement);
-        model.addAttribute("result", result);
-        return "result"; // JSP file: src/main/webapp/WEB-INF/views/result.jsp
+    public String replaceText(@RequestParam String text, @RequestParam String regex, @RequestParam String replacement) {
+        return textProcessingService.replaceTextInString(text, regex, replacement);
+    }
+
+    @PostMapping("/highlightMatches")
+    public String highlightMatches(@RequestParam String text, @RequestParam String regex) {
+        return textProcessingService.highlightMatches(text, regex);
     }
 
     @PostMapping("/manageCollection")
-    public String manageCollection(@RequestParam("type") String type, @RequestParam("operation") String operation, @RequestParam("data") String data, Model model) {
-        String result = textProcessingService.manageDataCollection(type, operation, data);
-        model.addAttribute("result", result);
-        return "result"; // JSP file: src/main/webapp/WEB-INF/views/result.jsp
+    public String manageCollection(@RequestParam String type, @RequestParam String operation, @RequestParam String data) {
+        return textProcessingService.manageDataCollection(type, operation, data);
     }
 }
