@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Text Processing Tool</title>
+    <link rel="stylesheet" href="styles.css">
+    <script>
+        // Function to handle form submission
+        function submitForm(action) {
+            // Get form inputs
+            const text = document.getElementById("mainText").value;
+            const regex = document.getElementById("regexPattern").value;
+            const replacement = document.getElementById("replaceWith").value;
+            const type = document.getElementById("collectionType").value;
+            const operation = document.getElementById("currentCollection").value;
+            const data = document.getElementById("itemInput").value;
+
+            // Create AJAX request
+            const xhr = new XMLHttpRequest();
+            xhr.open("POST", `http://localhost:3000${action}`, true); // Include the port number
+            xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+            xhr.onload = function () {
+                let resultContainer = document.getElementById("resultsArea");
+                if (xhr.status === 200) {
+                    // Success: Update result data
+                    let responseData = xhr.responseText;
+                    resultContainer.innerHTML = "<h2>Result</h2><pre>" + responseData + "</pre>";
+                } else {
+                    // Error: Display error message
+                    resultContainer.innerHTML = "<p style='color: red;'>Error: " + xhr.responseText + "</p>";
+                }
+            };
+
+            let params;
+            if (action.includes("manageCollection")) {
+                params = `type=${type}&operation=${operation}&data=${encodeURIComponent(data)}`;
+            } else {
+                params = `text=${encodeURIComponent(text)}&regex=${encodeURIComponent(regex)}&replacement=${encodeURIComponent(replacement)}`;
+            }
+
+            xhr.send(params);
+        }
+    </script>
+</head>
+<body>
+<div class="container">
+    <header>
+        <h1>Text Processing Tool</h1>
+    </header>
+
+    <form onsubmit="event.preventDefault();">
+        <section class="text-input">
+            <h2>Text Input</h2>
+            <textarea name="text" id="mainText" rows="10" placeholder="Enter your text here..."></textarea>
+        </section>
+
+        <section class="regex-operations">
+            <h2>Regex Operations</h2>
+            <label for="regexPattern">Regex Pattern:</label>
+            <input type="text" name="regex" id="regexPattern" placeholder="Enter regex pattern">
+            <label for="replaceWith">Replace With:</label>
+            <input type="text" name="replacement" id="replaceWith" placeholder="Enter replacement text">
+            <div class="buttons">
+                <button type="button" onclick="submitForm('/text/searchPattern')">Find Matches</button>
+                <button type="button" onclick="submitForm('/text/replaceText')">Replace</button>
+                <button type="button" onclick="submitForm('/text/highlightMatches')">Highlight Matches</button>
+            </div>
+        </section>
+
+        <section class="results">
+            <h2>Results</h2>
+            <div id="resultsArea"></div>
+        </section>
+
+        <section class="data-collections">
+            <h2>Data Collections</h2>
+            <label for="collectionType">Collection Type:</label>
+            <select name="type" id="collectionType">
+                <option value="list">List</option>
+                <option value="set">Set</option>
+                <option value="map">Map</option>
+            </select>
+            <label for="currentCollection">Current Collection:</label>
+            <select name="operation" id="currentCollection">
+                <option value="add">Add</option>
+                <option value="edit">Edit</option>
+                <option value="delete">Delete</option>
+                <option value="clear">Clear</option>
+            </select>
+            <div id="collectionDisplay"></div>
+            <div class="buttons">
+                <button type="button" onclick="submitForm('/text/manageCollection')">Execute</button>
+            </div>
+        </section>
+
+        <section class="item-operations">
+            <h2>Item Operations</h2>
+            <label for="itemInput">Item:</label>
+            <input type="text" name="data" id="itemInput" placeholder="Enter new item or edit existing item">
+            <div class="buttons">
+                <button type="button" onclick="submitForm('/text/manageCollection')">Add to Collection</button>
+                <button type="button" onclick="submitForm('/text/manageCollection')">Update Selected Item</button>
+                <button type="button" onclick="submitForm('/text/manageCollection')">Find Item</button>
+            </div>
+        </section>
+    </form>
+</div>
+</body>
+</html>
